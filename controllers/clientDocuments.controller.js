@@ -1,6 +1,10 @@
-
 import { ClientDocumentsModel } from "../models/clientDocuments.model.js";
 
+/*
+=======================
+CREATE DOCUMENT
+=======================
+*/
 export const createClientDocument = async (req, res) => {
 
   try {
@@ -9,7 +13,7 @@ export const createClientDocument = async (req, res) => {
 
     const id = await ClientDocumentsModel.create({
       ...req.body,
-      file_name: file?.originalname,
+      file_name: file?.originalname || null,
       file_path: file ? `/uploads/${file.filename}` : null
     });
 
@@ -31,7 +35,7 @@ export const getClientDocuments = async (req, res) => {
 
   try {
 
-    const docs = await ClientDocumentModel.getByClient(req.params.clientId);
+    const docs = await ClientDocumentsModel.getByClient(req.params.clientId);
 
     res.json(docs);
 
@@ -40,6 +44,7 @@ export const getClientDocuments = async (req, res) => {
     res.status(500).json({ error: "Error obteniendo documentos" });
   }
 };
+
 
 /*
 =======================
@@ -50,7 +55,7 @@ export const deleteClientDocument = async (req, res) => {
 
   try {
 
-    await ClientDocumentModel.remove(req.params.id);
+    await ClientDocumentsModel.remove(req.params.id);
 
     res.json({ success: true });
 
