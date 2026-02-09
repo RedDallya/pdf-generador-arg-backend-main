@@ -1,7 +1,13 @@
 import { ClientModel } from "../models/client.model.js";
 
+/*
+===========================
+CREATE CLIENT
+===========================
+*/
 export const createClient = async (req, res) => {
   try {
+
     const { nombre, email, telefono, notas } = req.body;
 
     if (!nombre) {
@@ -15,7 +21,10 @@ export const createClient = async (req, res) => {
       notas
     });
 
-    res.status(201).json({ id });
+    // 🔥 obtener cliente creado
+    const client = await ClientModel.getById(id);
+
+    res.status(201).json(client);
 
   } catch (error) {
     console.error(error);
@@ -23,16 +32,28 @@ export const createClient = async (req, res) => {
   }
 };
 
+
+/*
+===========================
+GET ALL CLIENTS
+===========================
+*/
 export const getClients = async (req, res) => {
   try {
     const clients = await ClientModel.getAll();
     res.json(clients);
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error obteniendo clientes" });
   }
 };
 
+/*
+===========================
+GET CLIENT BY ID
+===========================
+*/
 export const getClientById = async (req, res) => {
   try {
     const client = await ClientModel.getById(req.params.id);
@@ -42,48 +63,54 @@ export const getClientById = async (req, res) => {
     }
 
     res.json(client);
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error obteniendo cliente" });
   }
 };
 
+/*
+===========================
+UPDATE CLIENT
+===========================
+*/
 export const updateClient = async (req, res) => {
   try {
-    await ClientModel.update(req.params.id, req.body);
+
+    const updated = await ClientModel.update(req.params.id, req.body);
+
+    if (!updated) {
+      return res.status(404).json({ error: "Cliente no encontrado" });
+    }
+
     res.json({ success: true });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error actualizando cliente" });
   }
 };
 
+
+/*
+===========================
+DELETE CLIENT
+===========================
+*/
 export const deleteClient = async (req, res) => {
   try {
-    await ClientModel.remove(req.params.id);
+
+    const removed = await ClientModel.remove(req.params.id);
+
+    if (!removed) {
+      return res.status(404).json({ error: "Cliente no encontrado" });
+    }
+
     res.json({ success: true });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error eliminando cliente" });
   }
 };
-
-export async function getClientById(req, res) {
-  try {
-    const { id } = req.params;
-
-    const [rows] = await pool.query(
-      "SELECT * FROM clientes WHERE id = ?",
-      [id]
-    );
-
-    if (!rows.length) {
-      return res.status(404).json({ error: "Cliente no encontrado" });
-    }
-
-    res.json(rows[0]);
-
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-}
