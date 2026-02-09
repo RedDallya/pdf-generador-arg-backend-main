@@ -1,15 +1,17 @@
-import { ClientDocumentModel } from "../models/clientDocument.model.js";
 
-/*
-=======================
-CREATE DOCUMENT
-=======================
-*/
+import { ClientDocumentsModel } from "../models/clientDocuments.model.js";
+
 export const createClientDocument = async (req, res) => {
 
   try {
 
-    const id = await ClientDocumentModel.create(req.body);
+    const file = req.file;
+
+    const id = await ClientDocumentsModel.create({
+      ...req.body,
+      file_name: file?.originalname,
+      file_path: file ? `/uploads/${file.filename}` : null
+    });
 
     res.status(201).json({ id });
 
@@ -18,6 +20,7 @@ export const createClientDocument = async (req, res) => {
     res.status(500).json({ error: "Error creando documento" });
   }
 };
+
 
 /*
 =======================

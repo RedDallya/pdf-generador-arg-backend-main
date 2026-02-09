@@ -65,6 +65,7 @@ API ROUTES
 app.use("/api/clientes", clientsRoutes);
 app.use("/api/client-documents", clientDocumentsRoutes);
 app.use("/api/pdfs", pdfRoutes);
+app.use("/uploads", express.static("uploads"));
 
 /*
 =====================================
@@ -96,3 +97,5 @@ START SERVER
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
 });
+
+app.use("/uploads", express.static("uploads"));
