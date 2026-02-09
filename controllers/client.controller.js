@@ -84,13 +84,16 @@ export const updateClient = async (req, res) => {
       return res.status(404).json({ error: "Cliente no encontrado" });
     }
 
-    res.json({ success: true });
+    const client = await ClientModel.getById(req.params.id);
+
+    res.json(client);
 
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error actualizando cliente" });
   }
 };
+
 
 
 /*
