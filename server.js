@@ -4,6 +4,9 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import clientsRoutes from "./routes/clients.routes.js";
+import clientDocumentsRoutes from "./routes/clientDocuments.routes.js";
+
+app.use("/api/client-documents", clientDocumentsRoutes);
 
 
 import pdfRoutes from "./routes/pdf.routes.js";
