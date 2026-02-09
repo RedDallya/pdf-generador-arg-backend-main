@@ -3,16 +3,28 @@ import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
+
+/*
+=====================================
+ROUTES IMPORT
+=====================================
+*/
 import clientsRoutes from "./routes/clients.routes.js";
 import clientDocumentsRoutes from "./routes/clientDocuments.routes.js";
-
-app.use("/api/client-documents", clientDocumentsRoutes);
-
-
 import pdfRoutes from "./routes/pdf.routes.js";
 
+/*
+=====================================
+ENV CONFIG
+=====================================
+*/
 dotenv.config();
 
+/*
+=====================================
+APP INIT
+=====================================
+*/
 const app = express();
 
 /*
@@ -47,11 +59,12 @@ app.use("/assets", express.static(path.join(__dirname, "assets")));
 
 /*
 =====================================
-ROUTES
+API ROUTES
 =====================================
 */
-app.use("/api/pdfs", pdfRoutes);
 app.use("/api/clientes", clientsRoutes);
+app.use("/api/client-documents", clientDocumentsRoutes);
+app.use("/api/pdfs", pdfRoutes);
 
 /*
 =====================================
@@ -69,6 +82,7 @@ GLOBAL ERROR HANDLER
 */
 app.use((err, req, res, next) => {
   console.error("Error global:", err);
+
   res.status(500).json({
     error: "Error interno del servidor"
   });
