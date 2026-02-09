@@ -1,10 +1,14 @@
 import express from "express";
+
+
 import {
   getTravels,
+  getTravelsByClient,
   createTravel,
   updateTravel,
   deleteTravel
 } from "../controllers/viajes.controller.js";
+
 
 
 

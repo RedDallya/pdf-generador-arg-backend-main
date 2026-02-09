@@ -123,14 +123,26 @@ export const deleteTravel = async (req, res) => {
   }
 };
 
+
+
+// GET /api/viajes/cliente/:clienteId
 export const getTravelsByClient = async (req, res) => {
+
   try {
+
+    const { clienteId } = req.params;
+
     const [rows] = await pool.query(
-      "SELECT * FROM viajes WHERE cliente_id = ? ORDER BY created_at DESC",
-      [req.params.clienteId]
+      `SELECT *
+       FROM viajes
+       WHERE cliente_id = ?
+       ORDER BY created_at DESC`,
+      [clienteId]
     );
+
     res.json(rows);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
