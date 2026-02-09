@@ -107,3 +107,15 @@ export const deleteTravel = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+export const getTravelsByClient = async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      "SELECT * FROM viajes WHERE cliente_id = ? ORDER BY created_at DESC",
+      [req.params.clienteId]
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

@@ -7,6 +7,7 @@ import {
 } from "../backend/controllers/viajes.controller.js";
 
 const router = express.Router();
+router.get("/cliente/:clienteId", getTravelsByClient);
 
 router.get("/", getTravels);
 router.post("/", createTravel);
