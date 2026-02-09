@@ -76,5 +76,23 @@ export const ClientModel = {
   remove: async (id) => {
     await pool.query(`DELETE FROM clientes WHERE id = ?`, [id]);
     return true;
-  }
+  },
+  getByIdWithTags: async (id) => {
+
+  const [rows] = await pool.query(`
+    SELECT 
+      c.*,
+      GROUP_CONCAT(t.nombre) AS tags
+    FROM clientes c
+    LEFT JOIN cliente_tags ct ON c.id = ct.cliente_id
+    LEFT JOIN tags t ON ct.tag_id = t.id
+    WHERE c.id = ?
+    GROUP BY c.id
+  `, [id]);
+
+  return rows[0];
+}
 };
+
+
+
