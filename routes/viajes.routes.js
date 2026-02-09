@@ -4,7 +4,9 @@ import {
   createTravel,
   updateTravel,
   deleteTravel
-} from "../backend/controllers/viajes.controller.js";
+} from "../controllers/viajes.controller.js";
+
+
 
 const router = express.Router();
 router.get("/cliente/:clienteId", getTravelsByClient);

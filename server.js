@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
+import viajesRoutes from "./routes/viajes.routes.js";
 
 /*
 =====================================
@@ -67,6 +68,7 @@ app.use("/api/clientes", clientsRoutes);
 app.use("/api/client-documents", clientDocumentsRoutes);
 app.use("/api/pdfs", pdfRoutes);
 
+app.use("/api/viajes", viajesRoutes);
 
 /*
 =====================================
