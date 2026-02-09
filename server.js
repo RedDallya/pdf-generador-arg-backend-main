@@ -56,6 +56,7 @@ STATIC FILES
 =====================================
 */
 app.use("/assets", express.static(path.join(__dirname, "assets")));
+app.use("/uploads", express.static("uploads"));
 
 /*
 =====================================

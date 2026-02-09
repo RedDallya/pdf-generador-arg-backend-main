@@ -2,26 +2,25 @@ import pool from "../config/db.js";
 
 export const ClientModel = {
 
-  create: async ({ nombre, email, telefono, notas, status, location, tags, created_at }) => {
+ create: async ({ nombre, email, telefono, notas, status, location }) => {
 
-    const [result] = await pool.query(
-      `INSERT INTO clientes
-      (nombre, email, telefono, notas, status, location, tags, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        nombre,
-        email,
-        telefono,
-        notas || null,
-        status || null,
-        location || null,
-        tags || null,
-        created_at || null
-      ]
-    );
+  const [result] = await pool.query(
+    `INSERT INTO clientes
+    (nombre, email, telefono, notas, status, location)
+    VALUES (?, ?, ?, ?, ?, ?)`,
+    [
+      nombre,
+      email,
+      telefono,
+      notas || null,
+      status || "nuevo",
+      location || null
+    ]
+  );
 
-    return result.insertId;
-  },
+  return result.insertId;
+},
+
 
   getAll: async () => {
     const [rows] = await pool.query(`SELECT * FROM clientes ORDER BY id DESC`);
@@ -33,45 +32,40 @@ export const ClientModel = {
     return rows[0];
   },
 
-  update: async (id, data) => {
+ update: async (id, data) => {
 
-    const {
+  const {
+    nombre,
+    email,
+    telefono,
+    notas,
+    status,
+    location
+  } = data;
+
+  await pool.query(
+    `UPDATE clientes SET
+      nombre = ?,
+      email = ?,
+      telefono = ?,
+      notas = ?,
+      status = ?,
+      location = ?
+    WHERE id = ?`,
+    [
       nombre,
       email,
       telefono,
-      notas,
-      status,
-      location,
-      tags,
-      created_at
-    } = data;
+      notas || null,
+      status || "nuevo",
+      location || null,
+      id
+    ]
+  );
 
-    await pool.query(
-      `UPDATE clientes SET
-        nombre = ?,
-        email = ?,
-        telefono = ?,
-        notas = ?,
-        status = ?,
-        location = ?,
-        tags = ?,
-        created_at = ?
-      WHERE id = ?`,
-      [
-        nombre,
-        email,
-        telefono,
-        notas || null,
-        status || null,
-        location || null,
-        tags || null,
-        created_at || null,
-        id
-      ]
-    );
+  return true;
+},
 
-    return true;
-  },
 
   remove: async (id) => {
     await pool.query(`DELETE FROM clientes WHERE id = ?`, [id]);
