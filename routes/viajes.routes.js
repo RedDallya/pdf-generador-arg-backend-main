@@ -2,7 +2,7 @@ import express from "express";
 
 
 import {
-  getTravels,
+  getTravelById,
   getTravelsByClient,
   createTravel,
   updateTravel,
@@ -15,7 +15,7 @@ import {
 const router = express.Router();
 router.get("/cliente/:clienteId", getTravelsByClient);
 
-router.get("/", getTravels);
+router.get("/:id", getTravelById);
 router.post("/", createTravel);
 router.put("/:id", updateTravel);
 router.delete("/:id", deleteTravel);

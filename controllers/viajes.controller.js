@@ -1,6 +1,6 @@
 import pool from "../config/db.js";
 
-export const getTravels = async (req, res) => {
+export const getTravelById = async (req, res) => {
 
   const { cliente_id } = req.query;
 
