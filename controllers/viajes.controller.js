@@ -1,19 +1,34 @@
 import pool from "../config/db.js";
 
-// GET /api/viajes
 export const getTravels = async (req, res) => {
+
+  const { cliente_id } = req.query;
+
   try {
-    const [rows] = await pool.query(`
-      SELECT v.*, c.nombre AS cliente_nombre
-      FROM viajes v
-      JOIN clientes c ON c.id = v.cliente_id
-      ORDER BY v.created_at DESC
-    `);
+
+    let sql = `
+      SELECT *
+      FROM viajes
+    `;
+
+    const params = [];
+
+    if (cliente_id) {
+      sql += " WHERE cliente_id = ?";
+      params.push(cliente_id);
+    }
+
+    sql += " ORDER BY created_at DESC";
+
+    const [rows] = await pool.query(sql, params);
+
     res.json(rows);
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // POST /api/viajes
 export const createTravel = async (req, res) => {
