@@ -2,32 +2,22 @@ import pool from "../config/db.js";
 
 export const getTravelById = async (req, res) => {
 
-  const { cliente_id } = req.query;
-
   try {
 
-    let sql = `
-      SELECT *
-      FROM viajes
-    `;
+    const [rows] = await pool.query(
+      `SELECT *
+       FROM viajes
+       WHERE id = ?`,
+      [req.params.id]
+    );
 
-    const params = [];
+    res.json(rows[0]);
 
-    if (cliente_id) {
-      sql += " WHERE cliente_id = ?";
-      params.push(cliente_id);
-    }
-
-    sql += " ORDER BY created_at DESC";
-
-    const [rows] = await pool.query(sql, params);
-
-    res.json(rows);
-
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
+
 
 
 // POST /api/viajes
