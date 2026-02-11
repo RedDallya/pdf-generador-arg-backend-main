@@ -3,6 +3,16 @@ import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
+import cors from "cors";
+
+app.use(cors({
+  origin: [
+    "https://pdfcostaazul.netlify.app",
+    "http://localhost:5173",
+    "http://127.0.0.1:5500"
+  ],
+  credentials: true
+}));
 
 /*
 =====================================
