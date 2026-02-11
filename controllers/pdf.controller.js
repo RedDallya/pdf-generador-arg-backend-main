@@ -178,3 +178,36 @@ function drawServicesTable(doc, services) {
     doc.moveDown();
   });
 }
+
+/*const path = require("path");
+const db = require("../db"); // tu conexión
+
+exports.getLatestPdf = async (req, res) => {
+  const { cotizacionId } = req.params;
+  const userId = req.user.id;
+
+  try {
+    const [rows] = await db.query(`
+      SELECT file_path, nombre
+      FROM pdfs
+      WHERE cotizacion_id = ?
+        AND user_id = ?
+      ORDER BY created_at DESC
+      LIMIT 1
+    `, [cotizacionId, userId]);
+
+    if (!rows.length) {
+      return res.status(404).json({ error: "PDF no encontrado" });
+    }
+
+    const pdf = rows[0];
+    const fullPath = path.join(__dirname, "..", pdf.file_path);
+
+    res.download(fullPath, pdf.nombre);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error obteniendo PDF" });
+  }
+};
+ */

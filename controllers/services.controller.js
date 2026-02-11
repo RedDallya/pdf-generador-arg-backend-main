@@ -1,57 +1,167 @@
-import {
-  getServicesByCotizacion,
-  createService,
-  updateService,
-  deleteService,
-  getTotalsByCotizacion
-} from "../models/services.model.js";
+import pool from "../config/db.js";
+import * as ServModel from "../models/servicios.model.js";
+import * as MetaModel from "../models/serviciosMetadata.model.js";
+import { validateServicio } from "../validators/servicios.validator.js";
 
-export const getServices = async (req, res) => {
+/* =========================================
+GET SERVICIOS POR COTIZACION (ownership)
+========================================= */
+export const getServiciosByCotizacion = async (req, res) => {
   try {
-    const data = await getServicesByCotizacion(req.params.cotizacion_id);
-    res.json(data);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error obteniendo servicios" });
+    const userId = req.user.id;
+    const { cotizacionId } = req.params;
+
+    const servicios = await ServModel.getServiciosByCotizacion(
+      cotizacionId,
+      userId
+    );
+
+    const full = await Promise.all(
+      servicios.map(async s => {
+        s.metadata = await MetaModel.getServicioMetadata(s.id);
+        return s;
+      })
+    );
+
+    res.json(full);
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-export const createNewService = async (req, res) => {
+/* =========================================
+GET SERVICIO BY ID (ownership)
+========================================= */
+export const getServicioById = async (req, res) => {
   try {
-    const id = await createService(req.body);
-    res.status(201).json({ id });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error creando servicio" });
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    const servicio = await ServModel.getServicioById(id, userId);
+
+    if (!servicio) {
+      return res.status(404).json({ error: "Servicio no existe" });
+    }
+
+    servicio.metadata = await MetaModel.getServicioMetadata(servicio.id);
+
+    res.json(servicio);
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-export const updateExistingService = async (req, res) => {
+/* =========================================
+CREATE SERVICIO (ownership por cotizacion)
+========================================= */
+export const createServicio = async (req, res) => {
+  const conn = await pool.getConnection();
+
   try {
-    await updateService(req.params.id, req.body);
-    res.json({ success: true });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error actualizando servicio" });
+    validateServicio(req.body);
+
+    const userId = req.user.id;
+
+    await conn.beginTransaction();
+
+    const servicioId = await ServModel.createServicio(conn, {
+      ...req.body,
+      userId
+    });
+
+    if (req.body.metadata) {
+      await MetaModel.saveServicioMetadata(
+        conn,
+        servicioId,
+        req.body.metadata
+      );
+    }
+
+    await conn.commit();
+
+    res.status(201).json({ id: servicioId });
+
+  } catch (err) {
+    await conn.rollback();
+    res.status(400).json({ error: err.message });
+
+  } finally {
+    conn.release();
   }
 };
 
-export const removeService = async (req, res) => {
+/* =========================================
+UPDATE SERVICIO (ownership)
+========================================= */
+export const updateServicio = async (req, res) => {
+  const conn = await pool.getConnection();
+
   try {
-    await deleteService(req.params.id);
-    res.json({ success: true });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error eliminando servicio" });
+    validateServicio(req.body);
+
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    await conn.beginTransaction();
+
+    const exists = await ServModel.getServicioById(id, userId);
+
+    if (!exists) {
+      await conn.rollback();
+      return res.status(404).json({ error: "Servicio no existe" });
+    }
+
+    await ServModel.updateServicio(conn, id, req.body);
+
+    if (req.body.metadata !== undefined) {
+      await MetaModel.saveServicioMetadata(conn, id, req.body.metadata);
+    }
+
+    await conn.commit();
+
+    res.json({ ok: true });
+
+  } catch (err) {
+    await conn.rollback();
+    res.status(400).json({ error: err.message });
+
+  } finally {
+    conn.release();
   }
 };
 
-export const getTotals = async (req, res) => {
+/* =========================================
+DELETE SERVICIO (ownership)
+========================================= */
+export const deleteServicio = async (req, res) => {
+  const conn = await pool.getConnection();
+
   try {
-    const totals = await getTotalsByCotizacion(req.params.cotizacion_id);
-    res.json(totals);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error calculando totales" });
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    await conn.beginTransaction();
+
+    const exists = await ServModel.getServicioById(id, userId);
+
+    if (!exists) {
+      await conn.rollback();
+      return res.status(404).json({ error: "Servicio no existe" });
+    }
+
+    await ServModel.deleteServicio(conn, id);
+
+    await conn.commit();
+
+    res.json({ ok: true });
+
+  } catch (err) {
+    await conn.rollback();
+    res.status(500).json({ error: err.message });
+
+  } finally {
+    conn.release();
   }
 };

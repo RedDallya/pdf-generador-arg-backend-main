@@ -1,60 +1,148 @@
 import pool from "../config/db.js";
+import * as CotModel from "../models/cotizaciones.model.js";
+import * as ServModel from "../models/servicios.model.js";
+import { validateCotizacion } from "../validators/cotizaciones.validator.js";
 
-export const getByTravel = async (req, res) => {
-  const { viaje_id } = req.params;
+/* =========================================
+CREATE COTIZACION
+========================================= */
+export const createCotizacion = async (req, res) => {
+  const conn = await pool.getConnection();
 
   try {
-    const [rows] = await pool.query(
-      "SELECT * FROM cotizaciones WHERE viaje_id = ?",
-      [viaje_id]
+    validateCotizacion(req.body);
+
+    const userId = req.user.id;
+
+    await conn.beginTransaction();
+
+    const cotizacionId = await CotModel.createCotizacion(conn, {
+      ...req.body,
+      created_by: userId,
+      updated_by: userId
+    });
+
+    await conn.commit();
+
+    res.status(201).json({ id: cotizacionId });
+  } catch (err) {
+    await conn.rollback();
+    res.status(400).json({ error: err.message });
+  } finally {
+    conn.release();
+  }
+};
+
+/* =========================================
+GET COTIZACIONES POR VIAJE (con ownership)
+========================================= */
+export const getCotizacionesByViaje = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const rows = await CotModel.getCotizacionesByViaje(
+      req.params.viajeId,
+      userId
     );
+
     res.json(rows);
-  } catch (e) {
-    res.status(500).json({ error: e.message });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-export const createQuote = async (req, res) => {
-  const { viaje_id, titulo, condicion_legal } = req.body;
+/* =========================================
+GET COTIZACION COMPLETA
+========================================= */
+export const getCotizacionFull = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const cot = await CotModel.getCotizacionById(req.params.id, userId);
+
+    if (!cot) {
+      return res.status(404).json({ error: "Cotizacion no existe" });
+    }
+
+    const servicios = await ServModel.getServiciosByCotizacion(req.params.id);
+
+    cot.servicios = servicios;
+
+    res.json(cot);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+/* =========================================
+UPDATE COTIZACION
+========================================= */
+export const updateCotizacion = async (req, res) => {
+  const conn = await pool.getConnection();
 
   try {
-    const [r] = await pool.query(
-      `INSERT INTO cotizaciones (viaje_id, titulo, condicion_legal)
-       VALUES (?, ?, ?)`,
-      [viaje_id, titulo, condicion_legal]
+    validateCotizacion(req.body);
+
+    const userId = req.user.id;
+
+    await conn.beginTransaction();
+
+    const exists = await CotModel.getCotizacionById(
+      req.params.id,
+      userId
     );
 
-    res.status(201).json({ id: r.insertId });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
+    if (!exists) {
+      await conn.rollback();
+      return res.status(404).json({ error: "Cotizacion no existe" });
+    }
+
+    await CotModel.updateCotizacion(conn, req.params.id, {
+      ...req.body,
+      updated_by: userId
+    });
+
+    await conn.commit();
+
+    res.json({ ok: true });
+  } catch (err) {
+    await conn.rollback();
+    res.status(400).json({ error: err.message });
+  } finally {
+    conn.release();
   }
 };
 
-export const updateQuote = async (req, res) => {
-  const { id } = req.params;
-  const { titulo, condicion_legal, estado } = req.body;
+/* =========================================
+DELETE COTIZACION
+========================================= */
+export const deleteCotizacion = async (req, res) => {
+  const conn = await pool.getConnection();
 
   try {
-    await pool.query(
-      `UPDATE cotizaciones
-       SET titulo=?, condicion_legal=?, estado=?
-       WHERE id=?`,
-      [titulo, condicion_legal, estado, id]
+    const userId = req.user.id;
+
+    await conn.beginTransaction();
+
+    const exists = await CotModel.getCotizacionById(
+      req.params.id,
+      userId
     );
 
-    res.json({ message: "Cotización actualizada" });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-};
+    if (!exists) {
+      await conn.rollback();
+      return res.status(404).json({ error: "Cotizacion no existe" });
+    }
 
-export const deleteQuote = async (req, res) => {
-  const { id } = req.params;
+    await CotModel.deleteCotizacion(conn, req.params.id);
 
-  try {
-    await pool.query("DELETE FROM cotizaciones WHERE id=?", [id]);
-    res.json({ message: "Cotización eliminada" });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
+    await conn.commit();
+
+    res.json({ ok: true });
+  } catch (err) {
+    await conn.rollback();
+    res.status(500).json({ error: err.message });
+  } finally {
+    conn.release();
   }
 };
