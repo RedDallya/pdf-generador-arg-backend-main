@@ -10,6 +10,7 @@ const router = express.Router();
 router.get("/partial", generatePartialPdf);
 router.get("/full", generateFullPdf);
 router.get("/:cotizacionId", getPdfsByCotizacion);
-router.get("/latest/:cotizacionId", validateTokenFromQuery, getLatestPdf);
+router.get("/latest/:cotizacionId", getLatestPdf);
+
 
 export default router;
