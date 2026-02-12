@@ -1,6 +1,6 @@
 import pool from "../config/db.js";
 import * as CotModel from "../models/cotizaciones.model.js";
-import * as ServModel from "../models/servicios.model.js";
+import * as ServModel from "../models/services.model.js";
 import { validateCotizacion } from "../validators/cotizaciones.validator.js";
 
 /* =========================================

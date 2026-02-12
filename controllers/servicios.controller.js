@@ -1,5 +1,5 @@
 import pool from "../config/db.js";
-import * as ServModel from "../models/servicios.model.js";
+import * as ServModel from "../models/services.model.js";
 import * as MetaModel from "../models/serviciosMetadata.model.js";
 import { validateServicio } from "../validators/servicios.validator.js";
 
