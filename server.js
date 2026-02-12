@@ -1,10 +1,27 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import cors from "cors";
 
+/* ROUTES */
+import viajesRoutes from "./routes/viajes.routes.js";
+import clientsRoutes from "./routes/clients.routes.js";
+import clientDocumentsRoutes from "./routes/clientDocuments.routes.js";
+import pdfRoutes from "./routes/pdf.routes.js";
+import authRoutes from "./routes/auth.routes.js";
+import usersRoutes from "./routes/users.routes.js";
+import cotizacionesRoutes from "./routes/cotizaciones.routes.js";
+import serviciosRoutes from "./routes/servicios.routes.js";
+
+/* INIT */
+const app = express();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const PORT = process.env.PORT || 3000;
+
+/* MIDDLEWARES */
 app.use(cors({
   origin: [
     "https://pdfcostaazul.netlify.app",
@@ -14,107 +31,34 @@ app.use(cors({
   credentials: true
 }));
 
-/*
-=====================================
-ENV CONFIG (SIEMPRE ARRIBA)
-=====================================
-*/
-dotenv.config();
-
-/*
-=====================================
-ROUTES IMPORT
-=====================================
-*/
-import viajesRoutes from "./routes/viajes.routes.js";
-import clientsRoutes from "./routes/clients.routes.js";
-import clientDocumentsRoutes from "./routes/clientDocuments.routes.js";
-import pdfRoutes from "./routes/pdf.routes.js";
-
-import authRoutes from "./routes/auth.routes.js";
-import usersRoutes from "./routes/users.routes.js";
-import cotizacionesRoutes from "./routes/cotizaciones.routes.js";
-import serviciosRoutes from "./routes/servicios.routes.js";
-
-/*
-=====================================
-APP INIT
-=====================================
-*/
-const app = express();
-
-/*
-=====================================
-FIX __dirname PARA ES MODULES
-=====================================
-*/
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-/*
-=====================================
-CONFIG SERVER
-=====================================
-*/
-const PORT = process.env.PORT || 3000;
-
-/*
-=====================================
-MIDDLEWARES
-=====================================
-*/
-app.use(cors());
 app.use(express.json());
 
-/*
-=====================================
-STATIC FILES
-=====================================
-*/
+/* STATIC */
 app.use("/assets", express.static(path.join(__dirname, "assets")));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-/*
-=====================================
-API ROUTES
-=====================================
-*/
+/* API */
 app.use("/api/auth", authRoutes);
 app.use("/api/users", usersRoutes);
-
-app.use("/api/viajes", viajesRoutes);
 app.use("/api/clientes", clientsRoutes);
-app.use("/api/client-documents", clientDocumentsRoutes);
-app.use("/api/pdfs", pdfRoutes);
+app.use("/api/viajes", viajesRoutes);
 app.use("/api/cotizaciones", cotizacionesRoutes);
 app.use("/api/servicios", serviciosRoutes);
+app.use("/api/client-documents", clientDocumentsRoutes);
+app.use("/api/pdfs", pdfRoutes);
 
-/*
-=====================================
-HEALTH CHECK
-=====================================
-*/
-app.get("/", (req, res) => {
+/* HEALTH */
+app.get("/", (_, res) => {
   res.status(200).send("Backend funcionando 🚀");
 });
 
-/*
-=====================================
-GLOBAL ERROR HANDLER
-=====================================
-*/
+/* ERRORS */
 app.use((err, req, res, next) => {
   console.error("Error global:", err);
-  res.status(500).json({
-    error: "Error interno del servidor",
-  });
+  res.status(500).json({ error: "Error interno del servidor" });
 });
 
-/*
-=====================================
-START SERVER
-=====================================
-*/
+/* START */
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
 });
