@@ -1,56 +1,41 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import {
-  getUserByUsername,
-  saveRefreshToken,
-  revokeRefreshToken,
-  isRefreshValid
-} from "../models/auth.model.js";
-import { JWT_SECRET, JWT_EXPIRES, REFRESH_EXPIRES_DAYS } from "../config/jwt.js";
+import crypto from "crypto";
+import db from "../config/db.js";
+import { JWT_SECRET, JWT_EXPIRES } from "../config/jwt.js";
 
+/* =========================
+LOGIN
+========================= */
 export const login = async (req, res) => {
+  try {
+    const { username, password } = req.body;
 
-  const { username, password } = req.body;
+    const [rows] = await db.query(
+      "SELECT * FROM usuarios WHERE username = ?",
+      [username]
+    );
 
-  const user = await getUserByUsername(username);
-  if (!user) return res.status(401).json({ error: "Credenciales inválidas" });
+    if (!rows.length) {
+      return res.status(401).json({ error: "Credenciales inválidas" });
+    }
 
-  const ok = await bcrypt.compare(password, user.password_hash);
-  if (!ok) return res.status(401).json({ error: "Credenciales inválidas" });
+    const user = rows[0];
 
-  const accessToken = jwt.sign(
-    { id: user.id, role: user.role },
-    JWT_SECRET,
-    { expiresIn: JWT_EXPIRES }
-  );
+    const ok = await bcrypt.compare(password, user.password_hash);
+    if (!ok) {
+      return res.status(401).json({ error: "Credenciales inválidas" });
+    }
 
-  const refreshToken = crypto.randomUUID();
-  const expires = new Date();
-  expires.setDate(expires.getDate() + REFRESH_EXPIRES_DAYS);
+    const accessToken = jwt.sign(
+      { id: user.id, role: user.rol },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES }
+    );
 
-  await saveRefreshToken(user.id, refreshToken, expires);
+    res.json({ accessToken });
 
-  res.json({ accessToken, refreshToken });
-};
-
-export const refresh = async (req, res) => {
-
-  const { refreshToken } = req.body;
-  const stored = await isRefreshValid(refreshToken);
-
-  if (!stored) return res.status(401).json({ error: "Refresh inválido" });
-
-  const accessToken = jwt.sign(
-    { id: stored.user_id },
-    JWT_SECRET,
-    { expiresIn: JWT_EXPIRES }
-  );
-
-  res.json({ accessToken });
-};
-
-export const logout = async (req, res) => {
-  const { refreshToken } = req.body;
-  await revokeRefreshToken(refreshToken);
-  res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
