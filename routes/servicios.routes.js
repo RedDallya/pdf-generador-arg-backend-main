@@ -5,7 +5,7 @@ import {
   deleteServicio,
   getServicioById,
   getServiciosByCotizacion
-} from "../controllers/services.controller.js";
+} from "../controllers/servicios.controller.js";
 
 const router = express.Router();
 
