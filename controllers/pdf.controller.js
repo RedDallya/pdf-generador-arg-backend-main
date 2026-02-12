@@ -179,7 +179,7 @@ function drawServicesTable(doc, services) {
   });
 }
 
-/*const path = require("path");
+const path = require("path");
 const db = require("../db"); // tu conexión
 
 exports.getLatestPdf = async (req, res) => {
@@ -210,4 +210,4 @@ exports.getLatestPdf = async (req, res) => {
     res.status(500).json({ error: "Error obteniendo PDF" });
   }
 };
- */
+ 
