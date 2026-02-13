@@ -26,3 +26,4 @@ router.get("/:cotizacionId", getPdfsByCotizacion);
 router.get("/latest/:cotizacionId", getLatestPdf);
 
 export default router;
+
