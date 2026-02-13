@@ -25,6 +25,7 @@ export const createTravel = async (req, res) => {
   const {
     cliente_id,
     destino,
+    nombre,
     fecha_inicio,
     fecha_fin,
     pasajero,
@@ -36,11 +37,12 @@ export const createTravel = async (req, res) => {
   try {
     const [result] = await pool.query(
       `INSERT INTO viajes 
-      (cliente_id, destino, fecha_inicio, fecha_fin, pasajero, tipo_viaje, estado, notas)
+      (cliente_id, destino, nombre, fecha_inicio, fecha_fin, pasajero, tipo_viaje, estado, notas)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         cliente_id,
         destino,
+        nombre,
         fecha_inicio,
         fecha_fin,
         pasajero,
@@ -62,6 +64,7 @@ export const updateTravel = async (req, res) => {
   const {
     cliente_id,
     destino,
+    nombre,
     fecha_inicio,
     fecha_fin,
     pasajero,
@@ -75,6 +78,7 @@ export const updateTravel = async (req, res) => {
       `UPDATE viajes SET
         cliente_id=?,
         destino=?,
+        nombre=?,
         fecha_inicio=?,
         fecha_fin=?,
         pasajero=?,
@@ -85,6 +89,7 @@ export const updateTravel = async (req, res) => {
       [
         cliente_id,
         destino,
+        nombre,
         fecha_inicio,
         fecha_fin,
         pasajero,
