@@ -7,10 +7,10 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 const pool = mysql.createPool({
-  host: process.env.DB_HOST,      // debe estar en Railway Config Vars
-  user: process.env.DB_USER,      // idem
-  password: process.env.DB_PASS,  // idem
-  database: process.env.DB_NAME,  // idem
+  host: process.env.mysql.railway.internal,      // debe estar en Railway Config Vars
+  user: process.env.root,      // idem
+  password: process.env.eowJVMpxqFGnGcpNWCtnoWadJUwNCgYv,  // idem
+  database: process.env.railway,  // idem
   waitForConnections: true,
   connectionLimit: 10,
 });
