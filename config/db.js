@@ -1,21 +1,20 @@
 import mysql from "mysql2/promise";
 import dotenv from "dotenv";
 
-// Carga variables de entorno SOLO en desarrollo, para no interferir en Railway
+// Carga .env sólo en desarrollo
 if (process.env.NODE_ENV !== "production") {
   dotenv.config();
 }
 
 const pool = mysql.createPool({
-  host: process.env.mysql.railway.internal,      // debe estar en Railway Config Vars
-  user: process.env.root,      // idem
-  password: process.env.eowJVMpxqFGnGcpNWCtnoWadJUwNCgYv,  // idem
-  database: process.env.railway,  // idem
+  host: process.env.DB_HOST,      // Ej: mysql.railway.internal
+  user: process.env.DB_USER,      // Ej: root
+  password: process.env.DB_PASS,  // Ej: contraseña secreta
+  database: process.env.DB_NAME,  // Ej: railway
   waitForConnections: true,
   connectionLimit: 10,
 });
 
-// Testeamos conexión al arrancar backend
 pool.getConnection()
   .then(conn => {
     console.log("✅ DB conectado correctamente");
