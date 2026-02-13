@@ -1,26 +1,38 @@
 import mysql from "mysql2/promise";
 import dotenv from "dotenv";
+import { URL } from "url";
 
+// Carga variables de entorno en desarrollo
 if (process.env.NODE_ENV !== "production") {
   dotenv.config();
 }
 
-console.log("Conectando a DB con:", {
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT || 3306,
-  user: process.env.DB_USER,
-  database: process.env.DB_NAME,
-});
+let config = {};
 
-const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 3306,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-  waitForConnections: true,
-  connectionLimit: 10,
-});
+if (process.env.MYSQL_URL) {
+  const url = new URL(process.env.MYSQL_URL);
+  config = {
+    host: url.hostname,
+    port: Number(url.port),
+    user: url.username,
+    password: url.password,
+    database: url.pathname.substring(1), // elimina la barra inicial
+    waitForConnections: true,
+    connectionLimit: 10,
+  };
+} else {
+  config = {
+    host: process.env.MYSQLHOST || "localhost",
+    port: process.env.MYSQLPORT ? Number(process.env.MYSQLPORT) : 3306,
+    user: process.env.MYSQLUSER || "root",
+    password: process.env.MYSQLPASSWORD || "",
+    database: process.env.MYSQLDATABASE || "railway",
+    waitForConnections: true,
+    connectionLimit: 10,
+  };
+}
+
+const pool = mysql.createPool(config);
 
 pool.getConnection()
   .then(conn => {
