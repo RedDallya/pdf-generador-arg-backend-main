@@ -1,4 +1,5 @@
 import express from "express";
+import authMiddleware from "../middlewares/auth.middleware.js";
 import {
   createCotizacion,
   getCotizacionesByViaje,
@@ -9,10 +10,11 @@ import {
 
 const router = express.Router();
 
-router.get("/viaje/:viajeId", getCotizacionesByViaje);
-router.get("/:id", getCotizacionFull);
-router.post("/", createCotizacion);
-router.put("/:id", updateCotizacion);
-router.delete("/:id", deleteCotizacion);
+// Todas protegidas
+router.get("/viaje/:viajeId", authMiddleware, getCotizacionesByViaje);
+router.get("/:id", authMiddleware, getCotizacionFull);
+router.post("/", authMiddleware, createCotizacion);
+router.put("/:id", authMiddleware, updateCotizacion);
+router.delete("/:id", authMiddleware, deleteCotizacion);
 
 export default router;
