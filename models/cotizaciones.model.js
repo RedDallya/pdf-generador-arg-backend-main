@@ -48,12 +48,13 @@ export async function getCotizacionById(id, userId) {
 CREATE COTIZACION (valida viaje del usuario)
 ========================================= */
 export async function createCotizacion(conn, data) {
-  const {
-    viaje_id,
-    titulo,
-    condicion_legal,
-    userId
-  } = data;
+ const {
+  viaje_id,
+  titulo,
+  condicion_legal,
+  created_by
+} = data;
+
 
   // validar que el viaje pertenezca al usuario
   const [check] = await conn.query(
@@ -64,7 +65,7 @@ export async function createCotizacion(conn, data) {
     WHERE v.id = ?
       AND cl.created_by = ?
     `,
-    [viaje_id, userId]
+    [viaje_id, created_by]
   );
 
   if (check.length === 0) {
