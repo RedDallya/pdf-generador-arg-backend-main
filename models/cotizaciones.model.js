@@ -75,10 +75,10 @@ export async function createCotizacion(conn, data) {
   const [result] = await conn.query(
     `
     INSERT INTO cotizaciones
-    (viaje_id, titulo, condicion_legal)
-    VALUES (?, ?, ?)
+    (viaje_id, titulo, condicion_legal,created_by, updated_by)
+    VALUES (?, ?, ?,?,?)
     `,
-    [viaje_id, titulo, condicion_legal]
+    [viaje_id, titulo, condicion_legal, created_by, created_by]
   );
 
   return result.insertId;
