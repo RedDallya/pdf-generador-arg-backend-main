@@ -46,7 +46,7 @@ export const createTravel = async (req, res) => {
     const [result] = await pool.query(
       `INSERT INTO viajes 
       (cliente_id, destino, nombre, fecha_inicio, fecha_fin, pasajero, tipo_viaje, estado, notas)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         cliente_id,
         destino,
