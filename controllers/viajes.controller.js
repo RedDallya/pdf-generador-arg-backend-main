@@ -28,6 +28,7 @@ export const getTravelById = async (req, res) => {
 
 
 
+
 // POST /api/viajes
 export const createTravel = async (req, res) => {
   const {
