@@ -1,15 +1,22 @@
 import pool from "../config/db.js";
 
 export const getTravelById = async (req, res) => {
-
   try {
 
     const [rows] = await pool.query(
-      `SELECT *
-       FROM viajes
-       WHERE id = ?`,
+      `SELECT 
+          v.*,
+          c.nombre AS cliente_nombre
+       FROM viajes v
+       LEFT JOIN clientes c 
+          ON v.cliente_id = c.id
+       WHERE v.id = ?`,
       [req.params.id]
     );
+
+    if (!rows.length) {
+      return res.status(404).json({ error: "Viaje no encontrado" });
+    }
 
     res.json(rows[0]);
 
@@ -17,6 +24,7 @@ export const getTravelById = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 
 
